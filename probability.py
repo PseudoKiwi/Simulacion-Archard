@@ -12,7 +12,7 @@ def defineProbability(dENeg, accepted, beta):
             return True
         else:
             r = random()
-            print([e**(-beta*dE), r, dE])
+            # print([e**(-beta*dE), r, dE])
             aux = r < e**(-beta*dE)
             if aux:
                 accepted[0] += 1

@@ -8,11 +8,11 @@ from matplotlib.pyplot import xlim, ylim, figure, ion, show
 #---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
 
-iterations = 1000   # Number of Monte Carlo iterations
-nParticles = 100    # Number of particles on the material
+iterations = 5000   # Number of Monte Carlo iterations
+nParticles = 200    # Number of particles on the material
 U01 = 1             # Lennard - Jones potential constant from material
 r01 = 0.5           # Equilibrium radius from material
-beta = 100          # Related to temperature constant   
+beta = 1/293          # Related to temperature constant   
 dENeg = [0]         # Will store the amount of times dE < 0
 accepted = [0]      # Will store the amount of times a change was accepted when dE > 0
 
@@ -91,8 +91,8 @@ def boundryControl(pos, inc, i):    # Controls the particles do not get out of t
 
 
 for i in range(nParticles):     # Starting positions of the material particles
-    position[0][i] = (2 * random() - 1) / 20
-    position[1][i] = random() / 10
+    position[0][i] = 4 * random() - 2
+    position[1][i] = 2 * random()
 
 E = 0
 for i in range(nParticles):
