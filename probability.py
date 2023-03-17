@@ -5,10 +5,10 @@ from random import random
 # the probability function to be used during the simulation asuming negligible changes in temperature.
 
 
-def defineProbability(dENeg, accepted, beta):
+def defineProbability(accepted, beta):
     def acceptance(dE):
-        if( dE < 0 ):   # ¿ < o <= ?
-            dENeg[0] += 1
+        if( dE <= 0 ):   # ¿ < o <= ?
+            accepted[0] += 1
             return True
         else:
             r = random()

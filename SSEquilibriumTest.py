@@ -8,25 +8,25 @@ from matplotlib.pyplot import xlim, ylim, figure, ion, show
 #---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
 
-iterations = 10000   # Number of Monte Carlo iterations
+iterations = 1000000   # Number of Monte Carlo iterations
 nParticles = 100    # Number of particles on the material
 U01 = 1             # Lennard - Jones potential constant from material
-r01 = 0.5           # Equilibrium radius from material
-beta = 100          # Related to temperature constant   
-dENeg = [0]         # Will store the amount of times dE < 0
+r01 = 0.1           # Equilibrium radius from material
+beta = 100          # Related to temperature constant
 accepted = [0]      # Will store the amount of times a change was accepted when dE > 0
 
-acceptance1 = defineProbability(dENeg, accepted, beta)        # acceptance is the probability function for change acceptance
+acceptance1 = defineProbability(accepted, beta)        # acceptance is the probability function for change acceptance
 interactionType1 = potential(U01, r01)                       # Interaction potential between material particles
 
-x1 = -2   # wall at x = -2
-x2 = 2    # wall at x = 2
-y1 = 0    # wall at y = 0
-y2 = inf  # wall at y = inf
+x1 = 0      # wall at x = 0
+x2 = 2      # wall at x = 2
+y1 = 0      # wall at y = 0
+y2 = 2      # wall at y = 2
 
 position = zeros([2, nParticles])            # Material particles positions
 increments = zeros([2, nParticles])     # Material particles increments
 energies = zeros([1, iterations + 1])   # Energy values will be stored here when computed
+dEnergies = zeros([1, iterations])
 
 
 #----------------------------------------- AUXILIAR FUNCTIONS -----------------------------------------#
@@ -89,10 +89,12 @@ def boundryControl(pos, inc, i):    # Controls the particles do not get out of t
 
 #---------------------------------------- SIMULATION ----------------------------------------#
 
-
+aux = 2 + 2/9
 for i in range(nParticles):     # Starting positions of the material particles
-    position[0][i] = 4 * random() - 2
-    position[1][i] = 2 * random()
+    position[0][i] = 2/9 * (i % 10)
+    if (i % 10 == 0):
+        aux -= 2/9
+    position[1][i] = aux
 
 E = 0
 for i in range(nParticles):
@@ -100,15 +102,15 @@ for i in range(nParticles):
 
 energies[0] = E
 
-X = position[0]  # Every x position
-Y = position[1]  # Every y position
+#X = position[0]  # Every x position
+#Y = position[1]  # Every y position
 
-ion()
-fig = figure()
-ax = fig.add_subplot(111)
-system, = ax.plot(X, Y, ".")
-xlim([-2.1, 2.1])
-ylim([-0.1, 5])
+#ion()
+#fig = figure()
+#ax = fig.add_subplot(111)
+#system, = ax.plot(X, Y, ".")
+#xlim([-0.1, 9*r01 + 0.1])
+#ylim([-0.1, 9*r01 + 0.1])
 
 for i in range(iterations):     # Computes the changes in the system and shows the simulation
     index = randrange(0, nParticles)
@@ -120,20 +122,34 @@ for i in range(iterations):     # Computes the changes in the system and shows t
     if (acceptance1(dE)):
         E += dE
         modifyPos(position, increments, index)
-        X = position[0]  # Every x position
-        Y = position[1]  # Every y position
+    #    X = position[0]  # Every x position
+    #    Y = position[1]  # Every y position
+        dEnergies[0][i] = dE
     energies[0][i+1] = E
-    system.set_xdata(X)
-    system.set_ydata(Y)
-    fig.canvas.draw()
-    fig.canvas.flush_events()
+    #system.set_xdata(X)
+    #system.set_ydata(Y)
+    #fig.canvas.draw()
+    #fig.canvas.flush_events()
+
+
+X = position[0]  # Every x position
+Y = position[1]  # Every y position
+fig = figure()
+ax = fig.add_subplot(111)
+system, = ax.plot(X, Y, ".")
+xlim([-0.1, 2.1])
+ylim([-0.1, 2.1])
 
 fig2 = figure()
 ax2 = fig2.add_subplot(111)
 ax2.plot(energies[0])
 show()
 
-print(dENeg[0])
+fig3 = figure()
+ax3 = fig3.add_subplot(111)
+ax3.plot(dEnergies[0])
+show()
+
 print(accepted[0])
-AR = (accepted[0] / (iterations - dENeg[0]))*100
+AR = accepted[0] / iterations * 100
 print(AR)
