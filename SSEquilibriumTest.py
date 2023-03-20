@@ -11,7 +11,7 @@ from matplotlib.pyplot import xlim, ylim, figure, ion, show
 iterations = 1000000   # Number of Monte Carlo iterations
 nParticles = 100    # Number of particles on the material
 U01 = 1             # Lennard - Jones potential constant from material
-r01 = 0.1           # Equilibrium radius from material
+r01 = 0.3           # Equilibrium radius from material
 beta = 100          # Related to temperature constant
 accepted = [0]      # Will store the amount of times a change was accepted when dE > 0
 
