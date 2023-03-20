@@ -2,7 +2,7 @@ from numpy import pi, sin, cos, sqrt, zeros
 from probability import defineProbability
 from potential import potential
 from random import random, randrange
-from matplotlib.pyplot import xlim, ylim, figure, ion, show
+from matplotlib.pyplot import xlim, ylim, figure, show
 
 
 #---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
@@ -59,7 +59,7 @@ def sortModifyIncrement1(inc, i):   # Sorts and modify de increment of particle 
     inc[1][i] = dr * sin(angle)
 
 
-def modifyPos(pos, inc, i): # Modifies the position of particle i
+def modifyPos(pos, inc, i):  # Modifies the position of particle i
     pos[0][i] += inc[0][i]
     pos[1][i] += inc[1][i]
 
@@ -89,28 +89,27 @@ def boundryControl(pos, inc, i):    # Controls the particles do not get out of t
 
 #---------------------------------------- SIMULATION ----------------------------------------#
 
-aux = 2 + 2/9
-for i in range(nParticles):     # Starting positions of the material particles
-    position[0][i] = 2/9 * (i % 10)
-    if (i % 10 == 0):
-        aux -= 2/9
-    position[1][i] = aux
+
+with open("ultimoDato.txt", "r") as file:
+    a = file.readline()
+    b = file.readline()
+
+    a = a.split(',')
+    a[0] = a[0].split('[')[1]
+    a[-1] = a[-1].split(']')[0]
+
+    b = b.split(',')
+    b[0] = b[0].split('[')[1]
+    b[-1] = b[-1].split(']')[0]
+
+    position[0] = a
+    position[1] = b
 
 E = 0
 for i in range(nParticles):
     E += particleInteractionEnergy(position, increments, i)
 
 energies[0] = E
-
-#X = position[0]  # Every x position
-#Y = position[1]  # Every y position
-
-#ion()
-#fig = figure()
-#ax = fig.add_subplot(111)
-#system, = ax.plot(X, Y, ".")
-#xlim([-0.1, 9*r01 + 0.1])
-#ylim([-0.1, 9*r01 + 0.1])
 
 for i in range(iterations):     # Computes the changes in the system and shows the simulation
     index = randrange(0, nParticles)
@@ -122,14 +121,8 @@ for i in range(iterations):     # Computes the changes in the system and shows t
     if (acceptance1(dE)):
         E += dE
         modifyPos(position, increments, index)
-    #    X = position[0]  # Every x position
-    #    Y = position[1]  # Every y position
         dEnergies[0][i] = dE
     energies[0][i+1] = E
-    #system.set_xdata(X)
-    #system.set_ydata(Y)
-    #fig.canvas.draw()
-    #fig.canvas.flush_events()
 
 
 X = position[0]  # Every x position
