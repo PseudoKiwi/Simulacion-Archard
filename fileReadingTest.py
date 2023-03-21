@@ -1,27 +1,27 @@
-from numpy import pi, sin, cos, sqrt, zeros
+from numpy import pi, sin, cos, sqrt, zeros, inf
 from probability import defineProbability
 from potential import potential
 from random import random, randrange
-from matplotlib.pyplot import xlim, ylim, figure, show
+from matplotlib.pyplot import xlim, ylim, figure, ion, show
 
 
 #---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
 
-iterations = 1000000   # Number of Monte Carlo iterations
+iterations = 100000   # Number of Monte Carlo iterations
 nParticles = 100    # Number of particles on the material
 U01 = 1             # Lennard - Jones potential constant from material
-r01 = 0.3           # Equilibrium radius from material
+r01 = 0.5           # Equilibrium radius from material
 beta = 100          # Related to temperature constant
 accepted = [0]      # Will store the amount of times a change was accepted when dE > 0
 
 acceptance1 = defineProbability(accepted, beta)        # acceptance is the probability function for change acceptance
 interactionType1 = potential(U01, r01)                       # Interaction potential between material particles
 
-x1 = 0      # wall at x = 0
-x2 = 2      # wall at x = 2
+x1 = -3      # wall at x = 0
+x2 = 5      # wall at x = 2
 y1 = 0      # wall at y = 0
-y2 = 2      # wall at y = 2
+y2 = 5      # wall at y = 5
 
 position = zeros([2, nParticles])            # Material particles positions
 increments = zeros([2, nParticles])     # Material particles increments
@@ -32,25 +32,26 @@ dEnergies = zeros([1, iterations])
 #----------------------------------------- AUXILIAR FUNCTIONS -----------------------------------------#
 
 
-def particleInteractionEnergy(pos, inc, i, withIncrements = False):  # Computes the total interaction energy of particle i
+def interactionEnergy(pos):  # Computes the total interaction energy of particle i
     # When increments = True, it considers de future positions
     Eij = []
-    if (not withIncrements):
+    for i in range(nParticles):
         ri = [pos[0][i], pos[1][i]]
         for j in range(nParticles):
             if (i != j):
                 rj = [pos[0][j], pos[1][j]]
                 r = sqrt((ri[0] - rj[0]) ** 2 + (ri[1] - rj[1]) ** 2)
                 Eij.append(interactionType1(r))
-    else:
-        ri = [pos[0][i] + inc[0][i], pos[1][i] + inc[1][i]]
-        for j in range(nParticles):
-            if (i != j):
-                rj = [pos[0][j] + inc[0][j], pos[1][j] + inc[1][j]]
-                r = sqrt((ri[0] - rj[0]) ** 2 + (ri[1] - rj[1]) ** 2)
-                Eij.append(interactionType1(r))
-    return sum(Eij)
+    return sum(Eij)/2
 
+def dEi(pos, inc, i):
+    dEi = []
+    for j in range(nParticles):
+        if (i != j):
+            r1 = sqrt((pos[0][i] - pos[0][j]) ** 2 + (pos[1][i] - pos[1][j]) ** 2)
+            r2 = sqrt((pos[0][i] + inc[0][i] - pos[0][j]) ** 2 + (pos[1][i] + inc[1][i] - pos[1][j]) ** 2)
+            dEi.append(interactionType1(r2) - interactionType1(r1))
+    return sum(dEi)
 
 def sortModifyIncrement1(inc, i):   # Sorts and modify de increment of particle i
     angle = 2 * pi * random()
@@ -59,7 +60,7 @@ def sortModifyIncrement1(inc, i):   # Sorts and modify de increment of particle 
     inc[1][i] = dr * sin(angle)
 
 
-def modifyPos(pos, inc, i):  # Modifies the position of particle i
+def modifyPos(pos, inc, i): # Modifies the position of particle i
     pos[0][i] += inc[0][i]
     pos[1][i] += inc[1][i]
 
@@ -105,24 +106,22 @@ with open("ultimoDato.txt", "r") as file:
     position[0] = a
     position[1] = b
 
-E = 0
-for i in range(nParticles):
-    E += particleInteractionEnergy(position, increments, i)
-
+E = interactionEnergy(position)
 energies[0] = E
 
 for i in range(iterations):     # Computes the changes in the system and shows the simulation
     index = randrange(0, nParticles)
     sortModifyIncrement1(increments, index)
     boundryControl(position, increments, index)
-    Eactual = particleInteractionEnergy(position, increments, index)      # Actual interaction energy of chosen particle
-    Emod = particleInteractionEnergy(position, increments, index, True)   # Future interaction energy of chosen particle
-    dE = Emod - Eactual
+
+    dE = dEi(position, increments, index)
+
     if (acceptance1(dE)):
-        E += dE
         modifyPos(position, increments, index)
-        dEnergies[0][i] = dE
-    energies[0][i+1] = E
+    else:
+        dE = 0
+    dEnergies[0][i] = dE
+    energies[0][i+1] = energies[0][i] + dE
 
 
 X = position[0]  # Every x position
@@ -130,8 +129,8 @@ Y = position[1]  # Every y position
 fig = figure()
 ax = fig.add_subplot(111)
 system, = ax.plot(X, Y, ".")
-xlim([-0.1, 2.1])
-ylim([-0.1, 2.1])
+xlim([-3, 5])
+ylim([-0.1, 5])
 
 fig2 = figure()
 ax2 = fig2.add_subplot(111)
@@ -146,9 +145,14 @@ show()
 with open("ultimoDato.txt", "w") as file:
     str1 = str(list(X))
     str2 = str(list(Y))
+    str3 = str(list(energies[0]))
+    str4 = str(list(dEnergies[0]))
     file.write(str1 + "\n")
     file.write(str2 + "\n")
+    file.write(str3 + "\n")
+    file.write(str4 + "\n")
 
 print(accepted[0])
 AR = accepted[0] / iterations * 100
 print(AR)
+

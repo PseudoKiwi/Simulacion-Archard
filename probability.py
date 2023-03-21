@@ -7,12 +7,11 @@ from random import random
 
 def defineProbability(accepted, beta):
     def acceptance(dE):
-        if( dE <= 0 ):   # ¿ < o <= ?
+        if( dE <= 0 ):
             accepted[0] += 1
             return True
         else:
             r = random()
-            # print([e**(-beta*dE), r, dE])
             aux = r < e**(-beta*dE)
             if aux:
                 accepted[0] += 1
