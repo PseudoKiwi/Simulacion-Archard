@@ -17,6 +17,9 @@ def interactionEnergy(pos, nParticles, interaction):  # Computes the total inter
                 Eij.append(interaction(r))
     return sum(Eij)/2
 
+
+
+
 def dEi(pos, inc, i, nParticles, interaction):
     dEi = []
     for j in range(nParticles):
@@ -61,6 +64,11 @@ def boundryControl(pos, inc, i, x1, x2, y1, y2):    # Controls the particles do 
         inc[1][i] = dy
 
 
+def roofMovement(pos, n, distance):
+    for i in range(n):
+        pos[1][i] += distance
+
+
 # The defineProbability function receives the parameter beta, such that 1/beta=kB*T. It then returns
 # the probability function to be used during the simulation asuming negligible changes in temperature.
 def defineProbability(accepted, beta):
@@ -84,9 +92,25 @@ def defineProbability(accepted, beta):
 # U0: Measures how strong particles atract each other
 # r0: Equilibrium radius
 
-# 2*r0 is defined here as the critical radius where the interaction becomes
-# negligible
 def potential(U0, r0):
     def energy(r):
         return U0*((r0/r)**12 - (r0/r)**6)
     return energy
+
+
+# Vertical component of the interaction force between 2 particles
+# Used to compute pressure over the top or botton boundries
+def verticalInteractionForce(U0, r0):
+    def vForce(x, x0, y, y0):
+        r = sqrt((x-x0)**2 + (y-y0)**2)
+        return U0*(12*(r0**12)/(r**14) - 6*(r0**6)/(r**8))*(y-y0)
+    return vForce
+
+
+# Horizontal component of the interaction force between 2 particles
+# Used to compute pressure over the left or right boundries
+def horizontalInteractionForce(U0, r0):
+    def hForce(x, x0, y, y0):
+        r = sqrt((x - x0) ** 2 + (y - y0) ** 2)
+        return U0*(12*(r0**12)/(r**14) - 6*(r0**6)/(r**8))*(x-x0)
+    return hForce

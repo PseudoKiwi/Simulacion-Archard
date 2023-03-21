@@ -7,7 +7,7 @@ import auxiliarFunctions as auxF
 #---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
 
-iterations = 100000   # Number of Monte Carlo iterations
+iterations = 1000000   # Number of Monte Carlo iterations
 nParticles = 100    # Number of particles on the material
 U01 = 1             # Lennard - Jones potential constant from material
 r01 = 0.5           # Equilibrium radius from material
@@ -63,6 +63,9 @@ for i in range(iterations):     # Computes the changes in the system and shows t
         dE = 0
     energies[0][i+1] = energies[0][i] + dE
 
+    if (i % 10000 == 0):
+        print(i)
+
     #    X = position[0]  # Every x position
     #    Y = position[1]  # Every y position
     #system.set_xdata(X)
@@ -87,10 +90,8 @@ show()
 with open("ultimoDato.txt", "w") as file:
     str1 = str(list(X))
     str2 = str(list(Y))
-    str3 = str(list(energies[0]))
     file.write(str1 + "\n")
     file.write(str2 + "\n")
-    file.write(str3 + "\n")
 
 print(accepted[0])
 AR = accepted[0] / iterations * 100
