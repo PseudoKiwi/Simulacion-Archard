@@ -40,19 +40,20 @@ for i in range(nParticles):     # Starting positions of the material particles
 E = auxF.interactionEnergy(position, nParticles, interactionType1)
 energies[0] = E
 
-#X = position[0]  # Every x position
-#Y = position[1]  # Every y position
+X = position[0]  # Every x position
+Y = position[1]  # Every y position
 
 #ion()
-#fig = figure()
-#ax = fig.add_subplot(111)
-#system, = ax.plot(X, Y, ".")
-#xlim([-0.1, 9*r01 + 0.1])
-#ylim([-0.1, 9*r01 + 0.1])
+fig = figure()
+ax = fig.add_subplot(111)
+system, = ax.plot(X, Y, ".")
+xlim([-3, 5])
+ylim([-0.1, 5])
+show()
 
 for i in range(iterations):     # Computes the changes in the system and shows the simulation
     index = randrange(0, nParticles)
-    auxF.sortModifyIncrement1(increments, index, r01)
+    auxF.sortModifyIncrement(increments, index, r01)
     auxF.boundryControl(position, increments, index, x1, x2, y1, y2)
 
     dE = auxF.dEi(position, increments, index, nParticles, interactionType1)

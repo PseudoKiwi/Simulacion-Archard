@@ -18,8 +18,6 @@ def interactionEnergy(pos, nParticles, interaction):  # Computes the total inter
     return sum(Eij)/2
 
 
-
-
 def dEi(pos, inc, i, nParticles, interaction):
     dEi = []
     for j in range(nParticles):
@@ -29,11 +27,16 @@ def dEi(pos, inc, i, nParticles, interaction):
             dEi.append(interaction(r2) - interaction(r1))
     return sum(dEi)
 
-def sortModifyIncrement1(inc, i, r0):   # Sorts and modify de increment of particle i
+
+def sortModifyIncrement(inc, i, r0, boundryP = 0):   # Sorts and modify de increment of particle i
     angle = 2 * pi * random()
     dr = r0/5 * random()
     inc[0][i] = dr * cos(angle)
-    inc[1][i] = dr * sin(angle)
+    if (boundryP == 0):
+        inc[1][i] = dr * sin(angle)
+    else:
+        if (i < boundryP):
+            inc[1][i] = 0
 
 
 def modifyPos(pos, inc, i): # Modifies the position of particle i
@@ -48,24 +51,36 @@ def boundryControl(pos, inc, i, x1, x2, y1, y2):    # Controls the particles do 
     y = pos[1][i]
     dy = inc[1][i]
     if (x + dx < x1):
-        dx = abs(x1 - x)
+        dx = x1 - x
         mod = True
     elif (x + dx > x2):
-        dx = abs(x2 - x)
+        dx = x - x2
         mod = True
     if (y + dy < y1):
-        dy = abs(y1 - y)
+        dy = y1 - y
         mod = True
     elif (y + dy > y2):
-        dy = abs(y2 - y)
+        dy = y - y2
         mod = True
     if mod:
         inc[0][i] = dx
         inc[1][i] = dy
 
 
-def roofMovement(pos, n, distance):
-    for i in range(n):
+def totalBoundryControl(pos, x1, x2, y1, y2):
+    for i in range(len(pos[0])):
+        if (pos[0][i] < x1):
+            pos[0][i] = x1
+        elif (pos[0][i] > x2):
+            pos[0][i] = x2
+        if (pos[1][i] < y1):
+            pos[1][i] = y1
+        elif (pos[1][i] > y2):
+            pos[1][i] = y2
+
+
+def roofParticlesMovement(pos, boundryP, distance):
+    for i in range(boundryP):
         pos[1][i] += distance
 
 

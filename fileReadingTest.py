@@ -50,7 +50,7 @@ energies[0] = E
 
 for i in range(iterations):     # Computes the changes in the system and shows the simulation
     index = randrange(0, nParticles)
-    auxF.sortModifyIncrement1(increments, index, r01)
+    auxF.sortModifyIncrement(increments, index, r01)
     auxF.boundryControl(position, increments, index, x1, x2, y1, y2)
 
     dE = auxF.dEi(position, increments, index, nParticles, interactionType1)
