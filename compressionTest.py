@@ -85,6 +85,7 @@ for h in range(expData):
     system, = ax2.plot(X, Y, ".")
     xlim([-3, 5])
     ylim([-0.1, 5])
+    show()
 
     print(h + 1)
     for i in range(iterations):     # Computes the changes in the system and shows the simulation
@@ -100,8 +101,8 @@ for h in range(expData):
             dE = 0
         energies[0][i+1] = energies[0][i] + dE
 
-        vF = zeros(boundryP)
         if (i >= iterations - eq):
+            vF = zeros(boundryP)
             for f in range(boundryP):
                 vFie = []
                 for e in range(boundryP, nParticles + boundryP):
@@ -113,8 +114,8 @@ for h in range(expData):
             pressures.append(pressure)
             auxE.append(energies[0][i+1])
 
-        if (i % 9999 == 0):
-            print(i+1)
+        if (i % 10000 == 0):
+            print(i)
 
     y2 -= dy
     x1 -= dx
