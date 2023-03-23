@@ -1,4 +1,4 @@
-from numpy import zeros
+from numpy import zeros, mean
 from random import randrange
 from matplotlib.pyplot import xlim, ylim, figure, ion, show
 import auxiliarFunctions as auxF
@@ -7,7 +7,7 @@ import auxiliarFunctions as auxF
 #---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
 
-iterations = 1000000   # Number of Monte Carlo iterations
+iterations = 800000  # Number of Monte Carlo iterations
 nParticles = 100    # Number of particles on the material
 U01 = 1             # Lennard - Jones potential constant from material
 r01 = 0.5           # Equilibrium radius from material
@@ -25,7 +25,7 @@ y2 = 6      # wall at y = 5
 position = zeros([2, nParticles])            # Material particles positions
 increments = zeros([2, nParticles])     # Material particles increments
 energies = zeros([1, iterations + 1])   # Energy values will be stored here when computed
-
+auxiliar = []
 
 #---------------------------------------- SIMULATION ----------------------------------------#
 
@@ -38,7 +38,7 @@ for i in range(nParticles):     # Starting positions of the material particles
     position[1][i] = aux
 
 E = auxF.interactionEnergy(position, nParticles, interactionType1)
-energies[0] = E
+energies[0][0] = E
 
 X = position[0]  # Every x position
 Y = position[1]  # Every y position
@@ -63,6 +63,9 @@ for i in range(iterations):     # Computes the changes in the system and shows t
     else:
         dE = 0
     energies[0][i+1] = energies[0][i] + dE
+
+    if (i > 700000):
+        auxiliar.append(energies[0][i+1])
 
     if (i % 10000 == 0):
         print(i)
@@ -97,3 +100,9 @@ with open("ultimoDato.txt", "w") as file:
 print(accepted[0])
 AR = accepted[0] / iterations * 100
 print(AR)
+
+print(mean(auxiliar))
+fig3 = figure()
+ax3 = fig3.add_subplot(111)
+ax3.plot(auxiliar)
+show()

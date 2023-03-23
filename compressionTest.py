@@ -7,7 +7,7 @@ import auxiliarFunctions as auxF
 #---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
 
-iterations = 10000   # Number of Monte Carlo iterations
+iterations = 800000   # Number of Monte Carlo iterations
 nParticles = 100    # Number of particles on the material
 U01 = 1             # Lennard - Jones potential constant from material
 r01 = 0.5           # Equilibrium radius from material
@@ -36,7 +36,7 @@ boundryP = int((x2 - x1)//r01) + 1
 position = zeros([2, nParticles + boundryP])        # Material particles positions
 increments = zeros([2, nParticles + boundryP])      # Material particles increments
 energies = zeros([1, iterations + 1])               # Energy values will be stored here when computed
-pressures = zeros([1, iterations])                  # Pressure values will be stored here when computed
+eq = int(iterations/100)
 eqEnergies = zeros([1, expData])
 eqPressures = zeros([1, expData])
 
@@ -75,6 +75,17 @@ xlim([-3, 5])
 ylim([-0.1, 5])
 
 for h in range(expData):
+    auxE = []       # Energy values after eq. will be stored here when computed
+    pressures = []  # Pressure values after eq. will be stored here when computed
+
+    X = position[0]  # Every x position
+    Y = position[1]  # Every y position
+    fig2 = figure()
+    ax2 = fig2.add_subplot(111)
+    system, = ax2.plot(X, Y, ".")
+    xlim([-3, 5])
+    ylim([-0.1, 5])
+
     print(h + 1)
     for i in range(iterations):     # Computes the changes in the system and shows the simulation
         index = randrange(0, nParticles + boundryP)
@@ -90,7 +101,7 @@ for h in range(expData):
         energies[0][i+1] = energies[0][i] + dE
 
         vF = zeros(boundryP)
-        if (i >= iterations - int(iterations/100)):
+        if (i >= iterations - eq):
             for f in range(boundryP):
                 vFie = []
                 for e in range(boundryP, nParticles + boundryP):
@@ -99,7 +110,8 @@ for h in range(expData):
             totalForce = sum(vF)
             pressure = totalForce/lx
 
-            pressures[0][i] = pressure
+            pressures.append(pressure)
+            auxE.append(energies[0][i+1])
 
         if (i % 9999 == 0):
             print(i+1)
@@ -110,17 +122,16 @@ for h in range(expData):
     auxF.roofParticlesMovement(position, boundryP, -dy)
     auxF.totalBoundryControl(position, x1, x2, y1, y2)
 
-    eqEnergies[0][h] = mean(energies[0][-int(iterations/100):])
-    eqPressures[0][h] = mean(pressures[0][-int(iterations/100):])
+    eqEnergies[0][h] = mean(auxE)
+    eqPressures[0][h] = mean(pressures)
+    if (eqPressures[0][h] < 0):
+        eqPressures[0][h] = 0
 
-
-X = position[0]  # Every x position
-Y = position[1]  # Every y position
-fig2 = figure()
-ax2 = fig2.add_subplot(111)
-system, = ax2.plot(X, Y, ".")
-xlim([-3, 5])
-ylim([-0.1, 5])
+with open("datosEq.txt", "w") as file:
+    str1 = str(list(eqEnergies[0]))
+    str2 = str(list(eqPressures[0]))
+    file.write(str1 + "\n")
+    file.write(str2 + "\n")
 
 fig3 = figure()
 ax3 = fig3.add_subplot(111)
