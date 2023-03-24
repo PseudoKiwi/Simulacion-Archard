@@ -7,7 +7,7 @@ import auxiliarFunctions as auxF
 #---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
 
-iterations = 800000   # Number of Monte Carlo iterations
+iterations = 1000000   # Number of Monte Carlo iterations
 nParticles = 100    # Number of particles on the material
 U01 = 1             # Lennard - Jones potential constant from material
 r01 = 0.5           # Equilibrium radius from material
@@ -28,7 +28,7 @@ yf = y2 - 3*r01
 
 ly = y2 - y1
 lx = x2 - x1
-dy = ly/100
+dy = ly/1000
 dx = dy*lx/(2*(ly - dy))
 expData = int(abs(yi - yf)/dy)       # Number of total iterations of the simulation
 
@@ -44,7 +44,7 @@ eqPressures = zeros([1, expData])
 #---------------------------------------- SIMULATION ----------------------------------------#
 
 
-with open("ultimoDato.txt", "r") as file:
+with open("materialEq.txt", "r") as file:
     a = file.readline()
     b = file.readline()
 
@@ -64,7 +64,7 @@ for i in range(boundryP):
     position[1][i] = y2
 
 E = auxF.interactionEnergy(position, nParticles + boundryP, interactionType1)
-energies[0] = E
+energies[0][0] = E
 
 X = position[0]  # Every x position
 Y = position[1]  # Every y position

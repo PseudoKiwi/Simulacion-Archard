@@ -7,7 +7,7 @@ import auxiliarFunctions as auxF
 #---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
 
-iterations = 800000  # Number of Monte Carlo iterations
+iterations = 1000000  # Number of Monte Carlo iterations
 nParticles = 100    # Number of particles on the material
 U01 = 1             # Lennard - Jones potential constant from material
 r01 = 0.5           # Equilibrium radius from material
@@ -20,7 +20,7 @@ interactionType1 = auxF.potential(U01, r01)                       # Interaction 
 x1 = -2     # wall at x = 0
 x2 = 4      # wall at x = 2
 y1 = 0      # wall at y = 0
-y2 = 6      # wall at y = 5
+y2 = 5      # wall at y = 5
 
 position = zeros([2, nParticles])            # Material particles positions
 increments = zeros([2, nParticles])     # Material particles increments
@@ -91,7 +91,7 @@ ax2 = fig2.add_subplot(111)
 ax2.plot(energies[0])
 show()
 
-with open("ultimoDato.txt", "w") as file:
+with open("materialEq.txt", "w") as file:
     str1 = str(list(X))
     str2 = str(list(Y))
     file.write(str1 + "\n")
