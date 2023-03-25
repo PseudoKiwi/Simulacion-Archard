@@ -24,7 +24,7 @@ y2 = 5      # wall at y = 5
 
 position = zeros([2, nParticles])            # Material particles positions
 increments = zeros([2, nParticles])     # Material particles increments
-energies = zeros([1, iterations + 1])   # Energy values will be stored here when computed
+energies = zeros([iterations + 1])   # Energy values will be stored here when computed
 auxiliar = []
 
 #---------------------------------------- SIMULATION ----------------------------------------#
@@ -38,7 +38,7 @@ for i in range(nParticles):     # Starting positions of the material particles
     position[1][i] = aux
 
 E = auxF.interactionEnergy(position, nParticles, interactionType1)
-energies[0][0] = E
+energies[0] = E
 
 X = position[0]  # Every x position
 Y = position[1]  # Every y position
@@ -62,10 +62,10 @@ for i in range(iterations):     # Computes the changes in the system and shows t
         auxF.modifyPos(position, increments, index)
     else:
         dE = 0
-    energies[0][i+1] = energies[0][i] + dE
+    energies[i+1] = energies[i] + dE
 
     if (i > 700000):
-        auxiliar.append(energies[0][i+1])
+        auxiliar.append(energies[i+1])
 
     if (i % 10000 == 0):
         print(i)
@@ -88,7 +88,7 @@ ylim([-0.1, 5])
 
 fig2 = figure()
 ax2 = fig2.add_subplot(111)
-ax2.plot(energies[0])
+ax2.plot(energies)
 show()
 
 with open("materialEq.txt", "w") as file:

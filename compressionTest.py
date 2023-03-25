@@ -35,10 +35,10 @@ expData = int(abs(yi - yf)/dy)       # Number of total iterations of the simulat
 boundryP = int((x2 - x1)//r01) + 1
 position = zeros([2, nParticles + boundryP])        # Material particles positions
 increments = zeros([2, nParticles + boundryP])      # Material particles increments
-energies = zeros([1, iterations + 1])               # Energy values will be stored here when computed
+energies = zeros([iterations + 1])               # Energy values will be stored here when computed
 eq = int(iterations/100)
-eqEnergies = zeros([1, expData])
-eqPressures = zeros([1, expData])
+eqEnergies = zeros([expData])
+eqPressures = zeros([expData])
 
 
 #---------------------------------------- SIMULATION ----------------------------------------#
@@ -64,7 +64,7 @@ for i in range(boundryP):
     position[1][i] = y2
 
 E = auxF.interactionEnergy(position, nParticles + boundryP, interactionType1)
-energies[0][0] = E
+energies[0] = E
 
 X = position[0]  # Every x position
 Y = position[1]  # Every y position
@@ -99,7 +99,7 @@ for h in range(expData):
             auxF.modifyPos(position, increments, index)
         else:
             dE = 0
-        energies[0][i+1] = energies[0][i] + dE
+        energies[i+1] = energies[i] + dE
 
         if (i >= iterations - eq):
             vF = zeros(boundryP)
@@ -112,7 +112,7 @@ for h in range(expData):
             pressure = totalForce/lx
 
             pressures.append(pressure)
-            auxE.append(energies[0][i+1])
+            auxE.append(energies[i+1])
 
         if (i % 10000 == 0):
             print(i)
@@ -123,22 +123,22 @@ for h in range(expData):
     auxF.roofParticlesMovement(position, boundryP, -dy)
     auxF.totalBoundryControl(position, x1, x2, y1, y2)
 
-    eqEnergies[0][h] = mean(auxE)
-    eqPressures[0][h] = mean(pressures)
-    if (eqPressures[0][h] < 0):
-        eqPressures[0][h] = 0
+    eqEnergies[h] = mean(auxE)
+    eqPressures[h] = mean(pressures)
+    if (eqPressures[h] < 0):
+        eqPressures[h] = 0
 
 with open("datosEq.txt", "w") as file:
-    str1 = str(list(eqEnergies[0]))
-    str2 = str(list(eqPressures[0]))
+    str1 = str(list(eqEnergies))
+    str2 = str(list(eqPressures))
     file.write(str1 + "\n")
     file.write(str2 + "\n")
 
 fig3 = figure()
 ax3 = fig3.add_subplot(111)
-ax3.plot(eqEnergies[0])
+ax3.plot(eqEnergies)
 
 fig4 = figure()
 ax4 = fig4.add_subplot(111)
-ax4.plot(eqPressures[0])
+ax4.plot(eqPressures)
 show()
