@@ -94,8 +94,10 @@ show()
 with open("materialEq.txt", "w") as file:
     str1 = str(list(X))
     str2 = str(list(Y))
+    str3 = str(list(energies))
     file.write(str1 + "\n")
     file.write(str2 + "\n")
+    file.write(str3 + "\n")
 
 print(accepted[0])
 AR = accepted[0] / iterations * 100

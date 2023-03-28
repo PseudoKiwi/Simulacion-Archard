@@ -5,18 +5,19 @@
 
 from matplotlib.pyplot import xlim, ylim, figure, ion, show
 from numpy import zeros
+from auxiliarFunctions import interactionEnergy, potential
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
-
+from numpy import mean
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
     position = zeros([2, 100])
-    energies = zeros([1000001])
-    with open("prueba.txt", "r") as file:
+    energies = zeros([5000001])
+    with open("prueba2.txt", "r") as file:
         a = file.readline()
         b = file.readline()
         c = file.readline()
@@ -49,6 +50,12 @@ if __name__ == '__main__':
     fig2 = figure()
     ax2 = fig2.add_subplot(111)
     system, = ax2.plot(energies, ".")
+
+    fig3 = figure()
+    ax3 = fig3.add_subplot(111)
+    system, = ax3.plot(energies[4000000:], ".")
     show()
+
+    print(mean(energies[4000000:]))
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

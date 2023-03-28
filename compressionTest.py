@@ -32,7 +32,7 @@ dy = ly/1000
 dx = dy*lx/(2*(ly - dy))
 expData = int(abs(yi - yf)/dy)       # Number of total iterations of the simulation
 
-boundryP = int((x2 - x1)//r01) + 1
+boundryP = int((x2 - x1)//r01)
 position = zeros([2, nParticles + boundryP])        # Material particles positions
 increments = zeros([2, nParticles + boundryP])      # Material particles increments
 energies = zeros([iterations + 1])               # Energy values will be stored here when computed
@@ -43,7 +43,7 @@ eqPressures = zeros([expData])
 
 #---------------------------------------- SIMULATION ----------------------------------------#
 
-
+print(boundryP)
 with open("materialEq.txt", "r") as file:
     a = file.readline()
     b = file.readline()
@@ -60,7 +60,7 @@ with open("materialEq.txt", "r") as file:
     position[1][boundryP:] = b
 
 for i in range(boundryP):
-    position[0][i] = r01 * i + ((x2 - x1) % r01) + x1
+    position[0][i] = r01 * i + ((x2 - x1) - (boundryP - 1)*r01)/2 + x1
     position[1][i] = y2
 
 E = auxF.interactionEnergy(position, nParticles + boundryP, interactionType1)
