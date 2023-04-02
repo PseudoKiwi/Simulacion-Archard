@@ -1,138 +1,143 @@
-from numpy import zeros, abs, mean
+from numpy import zeros, abs, mean, sqrt
 from random import randrange
-from matplotlib.pyplot import xlim, ylim, figure, ion, show
+from matplotlib.pyplot import xlim, ylim, figure, show
 import auxiliarFunctions as auxF
+from sys import maxsize
 
+# ---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
-#---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
+iterations = 1000000  # Number of Monte Carlo iterations
+nParticles = 99  # Number of particles on the material
 
+with open("r01.txt", "r") as file:
+    req = float(file.readline())
 
-iterations = 1000000   # Number of Monte Carlo iterations
-nParticles = 100    # Number of particles on the material
-U01 = 1             # Lennard - Jones potential constant from material
-r01 = 0.5           # Equilibrium radius from material
-beta = 100          # Related to temperature constant
-accepted = [0]      # Will store the amount of times a change was accepted when dE > 0
+N = 17
+h = sqrt(3) / 2 * req
+a = nParticles // (2 * N - 1)
+H = h * (2 * a - 1)
 
-acceptance1 = auxF.defineProbability(accepted, beta)        # acceptance is the probability function for change acceptance
-interactionType1 = auxF.potential(U01, r01)                       # Interaction potential between material particles
-vForce = auxF.verticalInteractionForce(U01, r01)
-
-x1 = -2     # wall at x = 0
-x2 = 4      # wall at x = 2
-y1 = 0      # wall at y = 0
-y2 = 5      # wall at y = 5
-
-yi = y2
-yf = y2 - 3*r01
+x1 = 0  # wall at x = 0
+x2 = (N - 1) * req  # wall at x = 2
+y1 = 0  # wall at y = 0
+y2 = H  # wall at y = H
 
 ly = y2 - y1
 lx = x2 - x1
-dy = ly/1000
-dx = dy*lx/(2*(ly - dy))
-expData = int(abs(yi - yf)/dy)       # Number of total iterations of the simulation
 
-boundryP = int((x2 - x1)//r01)
-position = zeros([2, nParticles + boundryP])        # Material particles positions
-increments = zeros([2, nParticles + boundryP])      # Material particles increments
-energies = zeros([iterations + 1])               # Energy values will be stored here when computed
-eq = int(iterations/100)
+yi = H
+yf = yi - 30 / 100 * ly
+dy = ly / 100
+dx = dy * lx / (2 * (ly - dy))
+
+expData = int(abs(yi - yf) / dy)  # Number of total iterations of the simulation
+
 eqEnergies = zeros([expData])
 eqPressures = zeros([expData])
+eqLength = zeros([expData])
+
+U01 = 1  # Lennard - Jones potential constant from material
+r01 = 0.5  # Equilibrium radius from material
+
+beta = 100  # Related to temperature constant
+accepted = [0]  # Will store the amount of times a change was accepted when dE > 0
 
 
-#---------------------------------------- SIMULATION ----------------------------------------#
+position = zeros([2, nParticles])  # Material particles positions
+increments = zeros([2, nParticles])  # Material particles increments
+energies = zeros([iterations + 1])  # Energy values will be stored here when computed
+eq = int(iterations / 100)
 
-print(boundryP)
-with open("materialEq.txt", "r") as file:
-    a = file.readline()
-    b = file.readline()
+# ---------------------------------------- SIMULATION ----------------------------------------#
 
-    a = a.split(',')
-    a[0] = a[0].split('[')[1]
-    a[-1] = a[-1].split(']')[0]
+for i in range(N):  # Starting positions of the material particles
+    position[0][i] = req * i
+    position[1][i] = H
 
-    b = b.split(',')
-    b[0] = b[0].split('[')[1]
-    b[-1] = b[-1].split(']')[0]
+for i in range(N - 1):
+    position[0][i + N] = req * i + req / 2
+    position[1][i + N] = H - h
 
-    position[0][boundryP:] = a
-    position[1][boundryP:] = b
+for i in range(nParticles - 2 * N + 1):
+    position[0][i + 2 * N - 1] = position[0][i]
+    position[1][i + 2 * N - 1] = position[1][i] - 2 * h
 
-for i in range(boundryP):
-    position[0][i] = r01 * i + ((x2 - x1) - (boundryP - 1)*r01)/2 + x1
-    position[1][i] = y2
-
-E = auxF.interactionEnergy(position, nParticles + boundryP, interactionType1)
+E = auxF.interactionEnergy(position, nParticles, U01, r01)
 energies[0] = E
 
-X = position[0]  # Every x position
-Y = position[1]  # Every y position
-fig1 = figure()
-ax1 = fig1.add_subplot(111)
-system, = ax1.plot(X, Y, ".")
-xlim([-3, 5])
-ylim([-0.1, 5])
-
 for h in range(expData):
+
+    fig1 = figure()
+    ax1 = fig1.add_subplot(111)
+    ax1.plot(position[0], position[1], ".")
+    xlim([-1, 10])
+    ylim([-0.1, 10.9])
+    show()
+
     auxE = []       # Energy values after eq. will be stored here when computed
     pressures = []  # Pressure values after eq. will be stored here when computed
 
-    X = position[0]  # Every x position
-    Y = position[1]  # Every y position
-    fig2 = figure()
-    ax2 = fig2.add_subplot(111)
-    system, = ax2.plot(X, Y, ".")
-    xlim([-3, 5])
-    ylim([-0.1, 5])
-    show()
-
     print(h + 1)
     for i in range(iterations):     # Computes the changes in the system and shows the simulation
-        index = randrange(0, nParticles + boundryP)
-        auxF.sortModifyIncrement(increments, index, r01, boundryP)
+        index = randrange(0, nParticles)
+        auxF.sortModifyIncrement(increments, index, r01)
         auxF.boundryControl(position, increments, index, x1, x2, y1, y2)
 
-        dE = auxF.dEi(position, increments, index, nParticles + boundryP, interactionType1)
+        dE = auxF.dEi(position, increments, index, nParticles, U01, r01)
 
-        if (acceptance1(dE)):
+        if auxF.probability(beta, dE):
             auxF.modifyPos(position, increments, index)
         else:
             dE = 0
         energies[i+1] = energies[i] + dE
 
-        if (i >= iterations - eq):
-            vF = zeros(boundryP)
-            for f in range(boundryP):
-                vFie = []
-                for e in range(boundryP, nParticles + boundryP):
-                    vFie.append(vForce(position[0][f], position[0][e], position[1][f], position[1][e]))
-                vF[f] = sum(vFie)
-            totalForce = sum(vF)
-            pressure = totalForce/lx
-
+        if i >= iterations - eq:
+            indexes = []
+            for e, yi in enumerate(position[1]):
+                if yi == y2:
+                    indexes.append(e)
+            pressure = 0
+            for e in indexes:
+                vFef = 0
+                for f in range(nParticles):
+                    if position[1][e] != position[1][f]:
+                        vFef += auxF.verticalInteractionForce(U01, r01, position[0][e], position[0][f], position[1][e], position[1][f])
+                pressure += vFef/lx
             pressures.append(pressure)
             auxE.append(energies[i+1])
 
-        if (i % 10000 == 0):
+        if i % 10000 == 0:
             print(i)
 
     y2 -= dy
     x1 -= dx
     x2 += dx
-    auxF.roofParticlesMovement(position, boundryP, -dy)
     auxF.totalBoundryControl(position, x1, x2, y1, y2)
 
     eqEnergies[h] = mean(auxE)
     eqPressures[h] = mean(pressures)
-    if (eqPressures[h] < 0):
+
+    if eqPressures[h] < 0:
         eqPressures[h] = 0
 
-with open("datosEq.txt", "w") as file:
+    reqC = zeros([nParticles])
+    for i in range(nParticles):
+        minimum = maxsize
+        for j in range(nParticles):
+            if i != j:
+                r = sqrt((position[0][i] - position[0][j]) ** 2 + (position[1][i] - position[1][j]) ** 2)
+                if r < minimum:
+                    minimum = r
+        reqC[i] = minimum
+    eqLength[h] = mean(reqC)
+
+with open("resultadosEq.txt", "w") as file:
     str1 = str(list(eqEnergies))
     str2 = str(list(eqPressures))
+    str3 = str(list(eqLength))
     file.write(str1 + "\n")
     file.write(str2 + "\n")
+    file.write(str3 + "\n")
 
 fig3 = figure()
 ax3 = fig3.add_subplot(111)
@@ -141,4 +146,8 @@ ax3.plot(eqEnergies)
 fig4 = figure()
 ax4 = fig4.add_subplot(111)
 ax4.plot(eqPressures)
+
+fig5 = figure()
+ax5 = fig5.add_subplot(111)
+ax5.plot(eqLength)
 show()

@@ -1,5 +1,5 @@
 
 *.pyx
-cyAuxiliarFunctions.pyx
-cySSEquilibriumTest.pyx
-setup.py
+CythonAttemp/cyAuxiliarFunctions.pyx
+CythonAttemp/cySSEquilibriumTest.pyx
+CythonAttemp/setup.py
