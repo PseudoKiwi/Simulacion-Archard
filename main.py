@@ -15,12 +15,12 @@ from numpy import mean
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
-    position = zeros([2, 100])
-    energies = zeros([5000001])
-    with open("prueba2.txt", "r") as file:
+    e = zeros([150])
+    p = zeros([150])
+
+    with open("datosEq2.txt", "r") as file:
         a = file.readline()
         b = file.readline()
-        c = file.readline()
 
         a = a.split(',')
         a[0] = a[0].split('[')[1]
@@ -30,32 +30,18 @@ if __name__ == '__main__':
         b[0] = b[0].split('[')[1]
         b[-1] = b[-1].split(']')[0]
 
-        c = c.split(',')
-        c[0] = c[0].split('[')[1]
-        c[-1] = c[-1].split(']')[0]
+        e[:] = a.copy()[:150]
+        p[:] = b.copy()[:150]
 
-        position[0][:] = a
-        position[1][:] = b
-        energies[:] = c
-
-    X = position[0]
-    Y = position[1]
-
-    fig1 = figure()
-    ax1 = fig1.add_subplot(111)
-    system, = ax1.plot(X, Y, ".")
-    xlim([-3, 5])
-    ylim([-0.1, 5])
-
-    fig2 = figure()
-    ax2 = fig2.add_subplot(111)
-    system, = ax2.plot(energies, ".")
 
     fig3 = figure()
     ax3 = fig3.add_subplot(111)
-    system, = ax3.plot(energies[4000000:], ".")
-    show()
+    system, = ax3.plot(e)
 
-    print(mean(energies[4000000:]))
+    fig3 = figure()
+    ax3 = fig3.add_subplot(111)
+    system, = ax3.plot(p)
+
+    show()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

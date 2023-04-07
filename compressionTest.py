@@ -1,3 +1,5 @@
+import sys
+
 from numpy import zeros, abs, mean, sqrt
 from random import randrange
 from matplotlib.pyplot import xlim, ylim, figure, show
@@ -26,15 +28,15 @@ ly = y2 - y1
 lx = x2 - x1
 
 yi = H
-yf = yi - 30 / 100 * ly
+yf = yi - 80 / 100 * ly
 dy = ly / 100
 dx = dy * lx / (2 * (ly - dy))
 
 expData = int(abs(yi - yf) / dy)  # Number of total iterations of the simulation
 
-eqEnergies = zeros([expData])
-eqPressures = zeros([expData])
-eqLength = zeros([expData])
+eqEnergies = zeros([expData + 1])
+eqPressures = zeros([expData + 1])
+eqLength = zeros([expData + 1])
 
 U01 = 1  # Lennard - Jones potential constant from material
 r01 = 0.5  # Equilibrium radius from material
@@ -46,7 +48,7 @@ accepted = [0]  # Will store the amount of times a change was accepted when dE >
 position = zeros([2, nParticles])  # Material particles positions
 increments = zeros([2, nParticles])  # Material particles increments
 energies = zeros([iterations + 1])  # Energy values will be stored here when computed
-eq = int(iterations / 100)
+eq = iterations // 10
 
 # ---------------------------------------- SIMULATION ----------------------------------------#
 
@@ -64,6 +66,37 @@ for i in range(nParticles - 2 * N + 1):
 
 E = auxF.interactionEnergy(position, nParticles, U01, r01)
 energies[0] = E
+
+pressure = 0
+minY = sys.maxsize
+for i in range(N):
+    minY = min(position[1][i], minY)
+
+aux = []
+for i, y in enumerate(position[1]):
+    if y > minY:
+        aux.append(i)
+
+for e in aux:
+    vFef = 0
+    for f in range(nParticles):
+        if position[1][f] < minY:
+            vFef += auxF.verticalInteractionForce(U01, r01, position[0][e], position[0][f], position[1][e], position[1][f])
+    pressure += vFef/lx
+
+reqC = zeros([nParticles])
+for i in range(nParticles):
+    minimum = maxsize
+    for j in range(nParticles):
+        if i != j:
+            r = sqrt((position[0][i] - position[0][j]) ** 2 + (position[1][i] - position[1][j]) ** 2)
+            if r < minimum:
+                minimum = r
+    reqC[i] = minimum
+
+eqEnergies[0] = E
+eqPressures[0] = pressure
+eqLength[0] = mean(reqC)
 
 for h in range(expData):
 
@@ -92,17 +125,23 @@ for h in range(expData):
         energies[i+1] = energies[i] + dE
 
         if i >= iterations - eq:
-            indexes = []
-            for e, yi in enumerate(position[1]):
-                if yi == y2:
-                    indexes.append(e)
             pressure = 0
-            for e in indexes:
+            minY = sys.maxsize
+            for e in range(N):
+                minY = min(position[1][e], minY)
+
+            aux = []
+            for e, y in enumerate(position[1]):
+                if y > minY:
+                    aux.append(e)
+
+            for e in aux:
                 vFef = 0
                 for f in range(nParticles):
-                    if position[1][e] != position[1][f]:
-                        vFef += auxF.verticalInteractionForce(U01, r01, position[0][e], position[0][f], position[1][e], position[1][f])
-                pressure += vFef/lx
+                    if position[1][f] < minY:
+                        vFef += auxF.verticalInteractionForce(U01, r01, position[0][e], position[0][f], position[1][e],
+                                                              position[1][f])
+                pressure += vFef / lx
             pressures.append(pressure)
             auxE.append(energies[i+1])
 
@@ -110,12 +149,22 @@ for h in range(expData):
             print(i)
 
     y2 -= dy
-    x1 -= dx
-    x2 += dx
+    #x1 -= dx
+    #x2 += dx
     auxF.totalBoundryControl(position, x1, x2, y1, y2)
 
-    eqEnergies[h] = mean(auxE)
-    eqPressures[h] = mean(pressures)
+    fig3 = figure()
+    ax3 = fig3.add_subplot(111)
+    ax3.plot(auxE)
+
+    fig4 = figure()
+    ax4 = fig4.add_subplot(111)
+    ax4.plot(pressures)
+
+    print([mean(auxE), mean(pressures)])
+
+    eqEnergies[h + 1] = mean(auxE)
+    eqPressures[h + 1] = mean(pressures)
 
     if eqPressures[h] < 0:
         eqPressures[h] = 0
@@ -129,9 +178,9 @@ for h in range(expData):
                 if r < minimum:
                     minimum = r
         reqC[i] = minimum
-    eqLength[h] = mean(reqC)
+    eqLength[h + 1] = mean(reqC)
 
-with open("resultadosEq.txt", "w") as file:
+with open("resultadosEq2.txt", "w") as file:
     str1 = str(list(eqEnergies))
     str2 = str(list(eqPressures))
     str3 = str(list(eqLength))
