@@ -1,5 +1,3 @@
-import sys
-
 from numpy import zeros, abs, mean, sqrt
 from random import randrange
 from matplotlib.pyplot import xlim, ylim, figure, show
@@ -68,7 +66,7 @@ E = auxF.interactionEnergy(position, nParticles, U01, r01)
 energies[0] = E
 
 pressure = 0
-minY = sys.maxsize
+minY = maxsize
 for i in range(N):
     minY = min(position[1][i], minY)
 

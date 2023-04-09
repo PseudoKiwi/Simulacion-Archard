@@ -5,8 +5,7 @@ from random import random
 #----------------------------------------- AUXILIAR FUNCTIONS -----------------------------------------#
 
 
-def interactionEnergy(pos, nParticles, U0, r0):  # Computes the total interaction energy of particle i
-    # When increments = True, it considers de future positions
+def interactionEnergy(pos, nParticles, U0, r0):
     Eij = []
     for i in range(nParticles):
         ri = [pos[0][i], pos[1][i]]
@@ -17,6 +16,23 @@ def interactionEnergy(pos, nParticles, U0, r0):  # Computes the total interactio
                 Eij.append(potential(U0, r0, r))
     return sum(Eij)/2
 
+def interactionEnergy2(pos, mParticles, wParticles, U01, r01, U02, r02, U0Int, r0Int):
+    Eij = []
+    for i in range(mParticles + wParticles):
+        ri = [pos[0][i], pos[1][i]]
+        for j in range(mParticles + wParticles):
+            if (i != j):
+                rj = [pos[0][j], pos[1][j]]
+                r = sqrt((ri[0] - rj[0]) ** 2 + (ri[1] - rj[1]) ** 2)
+
+                if i >= wParticles and j >= wParticles:
+                    Eij.append(potential(U01, r01, r))
+                elif (i >= wParticles > j) or (i < wParticles <= j):
+                    Eij.append(potential(U0Int, r0Int, r))
+                else:
+                    Eij.append(potential(U02, r02, r))
+
+    return sum(Eij)/2
 
 def dEi(pos, inc, i, nParticles, U0, r0):
     dEi = []
@@ -27,6 +43,21 @@ def dEi(pos, inc, i, nParticles, U0, r0):
             dEi.append(potential(U0, r0, r2) - potential(U0, r0, r1))
     return sum(dEi)
 
+def dEi2(pos, inc, i, mParticles, wParticles, U01, r01, U02, r02, U0Int, r0Int):
+    dEi = []
+    for j in range(mParticles + wParticles):
+        if (i != j):
+            r1 = sqrt((pos[0][i] - pos[0][j]) ** 2 + (pos[1][i] - pos[1][j]) ** 2)
+            r2 = sqrt((pos[0][i] + inc[0][i] - pos[0][j]) ** 2 + (pos[1][i] + inc[1][i] - pos[1][j]) ** 2)
+
+            if i >= wParticles and j >= wParticles:
+                dEi.append(potential(U01, r01, r2) - potential(U01, r01, r1))
+            elif (i >= wParticles > j) or (i < wParticles <= j):
+                dEi.append(potential(U0Int, r0Int, r2) - potential(U0Int, r0Int, r1))
+            else:
+                dEi.append(potential(U02, r02, r2) - potential(U02, r02, r1))
+
+    return sum(dEi)
 
 def sortModifyIncrement(inc, i, r0):   # Sorts and modify de increment of particle i
     angle = 2 * pi * random()
