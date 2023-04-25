@@ -6,7 +6,7 @@ from sys import maxsize
 
 # ---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
-iterations = 1000000  # Number of Monte Carlo iterations
+iterations = 500000  # Number of Monte Carlo iterations
 nParticles = 99  # Number of particles on the material
 
 with open("r01.txt", "r") as file:
@@ -26,7 +26,7 @@ ly = y2 - y1
 lx = x2 - x1
 
 yi = H
-yf = yi - 80 / 100 * ly
+yf = yi - 30 / 100 * ly
 dy = ly / 100
 dx = dy * lx / (2 * (ly - dy))
 
@@ -124,7 +124,7 @@ for h in range(expData):
 
         if i >= iterations - eq:
             pressure = 0
-            minY = sys.maxsize
+            minY = maxsize
             for e in range(N):
                 minY = min(position[1][e], minY)
 
@@ -178,7 +178,7 @@ for h in range(expData):
         reqC[i] = minimum
     eqLength[h + 1] = mean(reqC)
 
-with open("resultadosEq2.txt", "w") as file:
+with open("resultadosEq4.txt", "w") as file:
     str1 = str(list(eqEnergies))
     str2 = str(list(eqPressures))
     str3 = str(list(eqLength))

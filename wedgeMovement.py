@@ -5,7 +5,7 @@ from matplotlib.pyplot import xlim, ylim, figure, show
 
 #---------------------------------------- CONSTANTS DEFINITION ----------------------------------------#
 
-iterations = 100000
+iterations = 50000
 N = 8        # Wedge base, fixed nodes
 nParticles = N * (N + 1) // 2
 r02 = 0.1    # Equilibrium radius for wedge particles
@@ -65,12 +65,10 @@ for e in range(4):
     fig2 = figure()
     ax2 = fig2.add_subplot(111)
     system, = ax2.plot(X, Y, ".")
-    xlim([-req, N * req])
-    ylim([-3 * h, N * h])
     show()
 
     for i in range(N):
-        position[1][i] -= h/2
+        position[1][i] += h/2
 
     print(e)
 

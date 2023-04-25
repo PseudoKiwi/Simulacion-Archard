@@ -15,10 +15,10 @@ from numpy import mean
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print_hi('PyCharm')
-    e = zeros([150])
-    p = zeros([150])
+    e = zeros([30])
+    p = zeros([30])
 
-    with open("datosEq2.txt", "r") as file:
+    with open("resultadosEq3.txt", "r") as file:
         a = file.readline()
         b = file.readline()
 
@@ -30,8 +30,8 @@ if __name__ == '__main__':
         b[0] = b[0].split('[')[1]
         b[-1] = b[-1].split(']')[0]
 
-        e[:] = a.copy()[:150]
-        p[:] = b.copy()[:150]
+        e[:] = a.copy()[:30]
+        p[:] = b.copy()[:30]
 
 
     fig3 = figure()

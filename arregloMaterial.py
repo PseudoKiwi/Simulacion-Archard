@@ -18,6 +18,7 @@ a = nParticles//(2*N - 1)
 h = sqrt(3)/2*req
 H = h*(2*a - 1)
 beta = 100            # Related to temperature constant
+beta = 100            # Related to temperature constant
 
 x1 = 0              # wall at x = 0
 x2 = (N-1)*req      # wall at x = 2
