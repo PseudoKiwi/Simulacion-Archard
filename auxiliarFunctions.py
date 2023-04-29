@@ -16,11 +16,11 @@ def interactionEnergy(pos, nParticles, U0, r0):
                 Eij.append(potential(U0, r0, r))
     return sum(Eij)/2
 
-def interactionEnergy2(pos, mParticles, wParticles, U01, r01, U02, r02, U0Int, r0Int):
+def interactionEnergy2(pos, nParticles, wParticles, U01, r01, U02, r02, U0Int, r0Int):
     Eij = []
-    for i in range(mParticles + wParticles):
+    for i in range(nParticles):
         ri = [pos[0][i], pos[1][i]]
-        for j in range(mParticles + wParticles):
+        for j in range(nParticles):
             if (i != j):
                 rj = [pos[0][j], pos[1][j]]
                 r = sqrt((ri[0] - rj[0]) ** 2 + (ri[1] - rj[1]) ** 2)
@@ -43,9 +43,9 @@ def dEi(pos, inc, i, nParticles, U0, r0):
             dEi.append(potential(U0, r0, r2) - potential(U0, r0, r1))
     return sum(dEi)
 
-def dEi2(pos, inc, i, mParticles, wParticles, U01, r01, U02, r02, U0Int, r0Int):
+def dEi2(pos, inc, i, nParticles, wParticles, U01, r01, U02, r02, U0Int, r0Int):
     dEi = []
-    for j in range(mParticles + wParticles):
+    for j in range(nParticles):
         if (i != j):
             r1 = sqrt((pos[0][i] - pos[0][j]) ** 2 + (pos[1][i] - pos[1][j]) ** 2)
             r2 = sqrt((pos[0][i] + inc[0][i] - pos[0][j]) ** 2 + (pos[1][i] + inc[1][i] - pos[1][j]) ** 2)
