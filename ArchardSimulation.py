@@ -23,17 +23,17 @@ with open("r01.txt", "r") as file:
     req2 = aux
     reqInt = aux
 
-r0Int = 0.5
-U0Int = 1
+r0Int = 0.5     # Interaction radius material - wedge
+U0Int = 3       # Lennard - Jones potential constant from interaction
 
 position = zeros([2, nParticles])    # Particles positions
 increments = zeros([2, nParticles])  # Particles increments
 energies = zeros([iterations + 1])   # Energy values will be stored here when computed
 
-x1 = 0  # wall at x = 0
-x2 = 16 * req1  # wall at x = 2
-y1 = 0  # wall at y = 0
-y2 = inf  # wall at y = H
+# x1 = 0  # wall at x = 0
+# x2 = 16 * req1  # wall at x = 2
+# y1 = 0  # wall at y = 0
+# y2 = inf  # wall at y = H
 
 
 # ---------------------------------------------- MATERIAL ----------------------------------------------#
@@ -42,8 +42,8 @@ y2 = inf  # wall at y = H
 h1 = sqrt(3) / 2 * req1     # Equilibrium material triangle height
 H = h1 * (2 * b - 1)        # Total height of material structure simulated
 
-r01 = 0.5  # Equilibrium radius from material
-U01 = 1  # Lennard - Jones potential constant from material
+r01 = 0.5  # Interaction radius from material
+U01 = 1    # Lennard - Jones potential constant from material
 
 
 # ----------------------------------------------- WEDGE -----------------------------------------------#
@@ -51,8 +51,8 @@ U01 = 1  # Lennard - Jones potential constant from material
 
 h2 = sqrt(3) / 2 * req2
 
-r02 = 0.5    # Equilibrium radius for wedge particles
-U02 = 1
+r02 = 0.5    # Interaction radius for wedge particles
+U02 = 5      # Lennard - Jones potential constant from wedge
 
 
 #--------------------------------------------- SIMULATION ---------------------------------------------#
@@ -125,24 +125,30 @@ show()
 E = auxF.interactionEnergy2(position, nParticles, wParticles, U01, r01, U02, r02, U0Int, r0Int)
 energies[0] = E
 
+partial = 12
+force = zeros([3*partial + 1])
+F = 0
+for k in range(wParticles):
+    for w in range(mParticles):
+        F += auxF.totalForce(U0Int, r0Int, position[0][k], position[0][w + wParticles], position[1][k], position[1][w + wParticles])
+force[0] = F
 
-partial = 8
 for e in range(3*partial):
 
     # Conditional to move down or up de wedge
     if e < partial:
         for i in range(wBase):
-            position[1][i] -= reqInt / 4
+            position[1][i] -= req2 / 4
     else:
         for i in range(wBase):
-            position[1][i] += reqInt / 4
+            position[1][i] += req2 / 4
 
 
     print(e)    # Control print
 
     for i in range(iterations):     # Computes the changes in the system and shows the simulation
 
-        if i % 20000 == 0:
+        if i % 50000 == 0:
             print(i)    # Control print
 
         index = randrange(wBase, nParticles - fParticles)   # Sort particle index
@@ -150,7 +156,7 @@ for e in range(3*partial):
             auxF.sortModifyIncrement(increments, index, r01)    # Material particle index action
         else:
             auxF.sortModifyIncrement(increments, index, r02)
-        auxF.boundryControl(position, increments, index, x1, x2, y1, y2)    # Wedge particle index action
+        # auxF.boundryControl(position, increments, index, x1, x2, y1, y2)    # Wedge particle index action
 
         # Energy change caused by possible movement
         dE = auxF.dEi2(position, increments, index, nParticles, wParticles, U01, r01, U02, r02, U0Int, r0Int)
@@ -162,6 +168,13 @@ for e in range(3*partial):
             dE = 0
         energies[i + 1] = energies[i] + dE
 
+    F = 0
+    for k in range(wParticles):
+        for w in range(mParticles):
+            F += auxF.totalForce(U0Int, r0Int, position[0][k], position[0][w + wParticles], position[1][k],
+                                 position[1][w + wParticles])
+    force[e + 1] = F
+
     #   Control graph
     X1 = position[0][wParticles:]  # Every x material position
     Y1 = position[1][wParticles:]  # Every y material position
@@ -170,10 +183,25 @@ for e in range(3*partial):
     X3 = position[0][:wParticles]  # Every x wedge position
     Y3 = position[1][:wParticles]  # Every x wedge position
     fig1 = figure()
-    ax2 = fig1.add_subplot(111)
-    system, = ax2.plot(X1, Y1, ".")
-    system, = ax2.plot(X2, Y2, ".")
-    system, = ax2.plot(X3, Y3, ".")
+    ax1 = fig1.add_subplot(111)
+    system, = ax1.plot(X1, Y1, ".")
+    system, = ax1.plot(X2, Y2, ".")
+    system, = ax1.plot(X3, Y3, ".")
     xlim([-req1, req1 * a])
     ylim([-2 * req1, H + wBase * h2 + 1.5])
     show()
+
+loss = 0
+for i in range(mParticles):
+    if position[1][i + wParticles] >= H + reqInt:
+        loss += 1
+
+fig2 = figure()
+ax2 = fig2.add_subplot(111)
+system, = ax2.plot(force)
+show()
+print(max(force))
+print(loss)
+
+with open("force-loss.txt", "a") as file:
+    file.write(f"{max(force)}, {loss}\n")

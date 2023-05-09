@@ -140,3 +140,10 @@ def verticalInteractionForce(U0, r0, x, x0, y, y0):
 def horizontalInteractionForce(U0, r0, x, x0, y, y0):
     r = sqrt((x - x0) ** 2 + (y - y0) ** 2)
     return U0*(12*(r0**12)/(r**14) - 6*(r0**6)/(r**8))*(x-x0)
+
+
+# Modulus of the force between particles
+def totalForce(U0, r0, x, x0, y, y0):
+    Fx = horizontalInteractionForce(U0, r0, x, x0, y, y0)
+    Fy = verticalInteractionForce(U0, r0, x, x0, y, y0)
+    return sqrt(Fx**2 + Fy**2)
