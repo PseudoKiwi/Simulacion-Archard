@@ -32,17 +32,38 @@ if __name__ == '__main__':
     #    e[:] = a.copy()[:30]
     #    p[:] = b.copy()[:30]
 
+    #particulas = []
+    #fuerza = []
+    #with open("force-loss.txt", "r") as file:
+    #    for linea in file:
+    #        aux = linea.split(', ')
+    #        particulas.append(float(aux[1]))
+    #        fuerza.append(float(aux[0]))
+    #m, b = polyfit(particulas, fuerza, 1)
+    #p2 = linspace(min(particulas), max(particulas), 2)
+    #f2 = b + m*p2
+
+    cantidad = zeros([50])
+    fuerzas = zeros([50], float)
     particulas = []
-    fuerza = []
+
     with open("force-loss.txt", "r") as file:
         for linea in file:
             aux = linea.split(', ')
-            particulas.append(float(aux[1]))
-            fuerza.append(float(aux[0]))
+            p = int(aux[1])
+            fuerzas[p] += float(aux[0])
+            cantidad[p] += 1
+
+    fuerza = []
+    for i, f in enumerate(fuerzas):
+        if f != 0:
+            c = cantidad[i]
+            fuerza.append(f/c)
+            particulas.append(i)
+
     m, b = polyfit(particulas, fuerza, 1)
     p2 = linspace(min(particulas), max(particulas), 2)
-    f2 = b + m*p2
-
+    f2 = b + m * p2
 
     fig3 = figure()
     ax3 = fig3.add_subplot(111)
