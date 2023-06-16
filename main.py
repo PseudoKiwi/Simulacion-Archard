@@ -3,8 +3,8 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
-from matplotlib.pyplot import figure, show
-from numpy import zeros, polyfit, linspace
+import matplotlib.pyplot as plt
+from numpy import zeros, polyfit, linspace, genfromtxt, unique, where, std
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -34,46 +34,84 @@ if __name__ == '__main__':
 
     #particulas = []
     #fuerza = []
-    #with open("force-loss.txt", "r") as file:
+    #with open("force-loss2.txt", "r") as file:
     #    for linea in file:
     #        aux = linea.split(', ')
     #        particulas.append(float(aux[1]))
     #        fuerza.append(float(aux[0]))
-    #m, b = polyfit(particulas, fuerza, 1)
-    #p2 = linspace(min(particulas), max(particulas), 2)
-    #f2 = b + m*p2
 
-    cantidad = zeros([50])
-    fuerzas = zeros([50], float)
-    particulas = []
+    #L = []
+    #for i in range(len(fuerza)):
+    #    L.append(0.5437662932839045/4*(1 + i % 12))
 
-    with open("force-loss.txt", "r") as file:
+    #m, b = polyfit(fuerza, particulas, 1)
+    #p2 = linspace(min(fuerza), max(fuerza), 2)
+    #f2 = b + m * p2
+
+    #n, v = polyfit(fuerza, L, 1)
+    #p3 = linspace(min(fuerza), max(fuerza), 2)
+    #f3 = v + n * p3
+
+    #fig = figure()
+    #ax = fig.add_subplot(111)
+    #system, = ax.plot(fuerza, particulas, ".")
+    #system, = ax.plot(p2, f2)
+
+    #fig = figure()
+    #ax = fig.add_subplot(111)
+    #system, = ax.plot(fuerza, L, ".")
+    #system, = ax.plot(p3, f3)
+
+    L = zeros([12], float)
+    for i in range(12):
+        L[i] = 0.5437662932839045 / 4 * (1 + i % 12)
+    fuerzasL = zeros([12], float)
+
+    with open("force-loss2.txt", "r") as file:
+        cont = 0
         for linea in file:
             aux = linea.split(', ')
-            p = int(aux[1])
-            fuerzas[p] += float(aux[0])
-            cantidad[p] += 1
+            fuerzasL[cont % 12] += float(aux[0])/5
+            cont += 1
 
-    fuerza = []
-    for i, f in enumerate(fuerzas):
-        if f != 0:
-            c = cantidad[i]
-            fuerza.append(f/c)
-            particulas.append(i)
+    # Leer los datos del archivo
+    data = genfromtxt('force-loss.txt', delimiter=',')
+    numbers = data[:, 0]
+    categories = data[:, 1]
 
-    m, b = polyfit(particulas, fuerza, 1)
-    p2 = linspace(min(particulas), max(particulas), 2)
+    indices = where(numbers <= 30)
+    numbers = numbers[indices]
+    categories = categories[indices]
+
+    # Obtener los números de la derecha únicos
+    unique_categories = unique(categories)
+
+    prom = []
+    std_dev = []
+    # Calcular el promedio y la desviación estándar para cada categoría
+    for category in unique_categories:
+        indices = where(categories == category)
+        numbers_for_category = numbers[indices]
+        prom.append(mean(numbers_for_category))
+        std_dev.append(std(numbers_for_category))
+
+
+    m, b = polyfit(unique_categories, prom, 1)
+    p2 = linspace(min(unique_categories), max(unique_categories), 2)
     f2 = b + m * p2
 
-    fig3 = figure()
-    ax3 = fig3.add_subplot(111)
-    system, = ax3.plot(particulas, fuerza, ".")
-    system, = ax3.plot(p2, f2)
+    #n, v = polyfit(fuerzasL, L, 1)
+    #p3 = linspace(min(fuerzasL), max(fuerzasL), 2)
+    #f3 = v + n * p3
 
-    #fig3 = figure()
-    #ax3 = fig3.add_subplot(111)
-    #system, = ax3.plot(p)
+    fig, ax = plt.subplots()
+    ax.errorbar(unique_categories, prom, yerr=std_dev, fmt=".")
+    system, = ax.plot(p2, f2)
 
-    show()
+    #fig, ax = plt.subplots()
+    #ax.plot(fuerzasL, L, ".")
+    #ax.plot(p3, f3)
+
+    plt.show()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

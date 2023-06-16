@@ -18,12 +18,12 @@ beta = 100  # Related to temperature constant
 
 with open("r01.txt", "r") as file:
     aux = float(file.readline())
-    req1 = aux
-    req2 = aux
+    reqM = aux
+    reqW = aux
     reqInt = aux
 
 r0Int = 0.5     # Interaction radius material - wedge
-U0Int = 3       # Lennard - Jones potential constant from interaction
+U0Int = 2       # Lennard - Jones potential constant from interaction
 
 position = zeros([2, nParticles])    # Particles positions
 increments = zeros([2, nParticles])  # Particles increments
@@ -33,7 +33,7 @@ energies = zeros([iterations + 1])   # Energy values will be stored here when co
 # ---------------------------------------------- MATERIAL ----------------------------------------------#
 
 
-h1 = sqrt(3) / 2 * req1     # Equilibrium material triangle height
+h1 = sqrt(3) / 2 * reqM     # Equilibrium material triangle height
 H = h1 * (2 * b - 1)        # Total height of material structure simulated
 
 r01 = 0.5  # Interaction radius from material
@@ -43,7 +43,7 @@ U01 = 1    # Lennard - Jones potential constant from material
 # ----------------------------------------------- WEDGE -----------------------------------------------#
 
 
-h2 = sqrt(3) / 2 * req2
+h2 = sqrt(3) / 2 * reqW
 
 r02 = 0.5    # Interaction radius for wedge particles
 U02 = 5      # Lennard - Jones potential constant from wedge
@@ -54,14 +54,14 @@ U02 = 5      # Lennard - Jones potential constant from wedge
 for partial in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]:
     print(partial)
     # Starting positions of the wedge particles (triangle form)
-    dx = (a - 1)*req1/2 - (wBase - 1)*req2/2
+    dx = (a - 1)*reqM/2 - (wBase - 1)*reqW/2
     dy = H + 2*reqInt
     aux = wBase
     e = 0
     f = 1
     mod = False
     for i in range(wParticles):
-        position[0][i] = (f % aux)*req2 + e*req2/2 + dx
+        position[0][i] = (f % aux)*reqW + e*reqW/2 + dx
         position[1][i] = (wBase-1) * h2 - e*h2 + dy
         if f % aux == 0 and f // aux == 1:
             aux -= 1
@@ -76,11 +76,11 @@ for partial in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]:
 
     # Starting positions of the material particles
     for i in range(a):
-        position[0][i + wParticles] = req1*i
+        position[0][i + wParticles] = reqM*i
         position[1][i + wParticles] = H
 
     for i in range(a - 1):
-        position[0][i + a + wParticles] = req1*i + req1/2
+        position[0][i + a + wParticles] = reqM*i + reqM/2
         position[1][i + a + wParticles] = H - h1
 
     for i in range(mParticles - 2*a + 1):
@@ -90,9 +90,9 @@ for partial in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]:
 
     # Starting positions of fixed material particles
     for i in range(b):
-        position[0][i + wParticles + mParticles] = position[0][wParticles + a] - req1
+        position[0][i + wParticles + mParticles] = position[0][wParticles + a] - reqM
         position[1][i + wParticles + mParticles] = position[1][a * (i + 1) + i * (a - 1) + wParticles]
-        position[0][i + wParticles + mParticles + b] = position[0][wParticles + 2*a - 2] + req1
+        position[0][i + wParticles + mParticles + b] = position[0][wParticles + 2*a - 2] + reqM
         position[1][i + wParticles + mParticles + b] = position[1][a * (i + 1) + i * (a - 1) + wParticles]
 
     for i in range(a):
@@ -115,10 +115,10 @@ for partial in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]:
         # Conditional to move down or up de wedge
         if e < partial:
             for i in range(wBase):
-                position[1][i] -= req2 / 4
+                position[1][i] -= reqW / 4
         else:
             for i in range(wBase):
-                position[1][i] += req2 / 4
+                position[1][i] += reqW / 4
 
 
         print(e)    # Control print
@@ -157,5 +157,5 @@ for partial in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]:
             loss += 1
 
 
-    with open("force-loss.txt", "a") as file:
+    with open("force-loss2.txt", "a") as file:
         file.write(f"{max(force)}, {loss}\n")
