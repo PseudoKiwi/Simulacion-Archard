@@ -1,5 +1,0 @@
-
-*.pyx
-CythonAttemp/cyAuxiliarFunctions.pyx
-CythonAttemp/cySSEquilibriumTest.pyx
-CythonAttemp/setup.py
